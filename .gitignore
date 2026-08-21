@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.db
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dev-dist/
+
+# Local HTTPS dev certificates (self-signed, machine-specific, never commit private keys)
+frontend/.cert/
+
+# Editor/OS
+.DS_Store
