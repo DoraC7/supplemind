@@ -8,7 +8,7 @@ import json
 from backend.inventory_importer import build_product_batch
 from backend.routine_conflicts import check_routine_conflicts
 
-DB_FILE = "supplemind.db"
+DB_FILE = "supplemind_care.db"
 
 INGREDIENT_KNOWLEDGE = {
     "Ascorbic Acid": {"category": "brightening", "chinese": "維生素C", "icon": "☀️"},
@@ -41,7 +41,7 @@ def init_db():
             )
         ''')
         c.execute('''
-            CREATE TABLE IF NOT EXISTS SkincareProducts (
+            CREATE TABLE IF NOT EXISTS CareProducts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 brand TEXT,
@@ -74,7 +74,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-app = FastAPI(title="SuppleMind API", version="2.2.0")
+app = FastAPI(title="SuppleMind Care API", version="2.2.0")
 
 class UserProfileUpdate(BaseModel):
     skin_type: Optional[str] = None
@@ -82,7 +82,7 @@ class UserProfileUpdate(BaseModel):
     morning_routine_time: Optional[str] = None
     night_routine_time: Optional[str] = None
 
-class SkincareProductCreate(BaseModel):
+class CareProductCreate(BaseModel):
     name: str
     brand: Optional[str] = None
     category: Optional[str] = None
@@ -194,7 +194,7 @@ def get_products(
     routine_slot: Optional[str] = Query(None)
 ):
     conn = get_db_connection()
-    query = "SELECT * FROM SkincareProducts WHERE product_status NOT IN ('finished', 'discarded')"
+    query = "SELECT * FROM CareProducts WHERE product_status NOT IN ('finished', 'discarded')"
     params = []
     
     if category:
@@ -216,10 +216,10 @@ def get_products(
     return products
 
 @app.post("/api/products")
-def create_product(product: SkincareProductCreate):
+def create_product(product: CareProductCreate):
     conn = get_db_connection()
     cursor = conn.execute(
-        '''INSERT INTO SkincareProducts 
+        '''INSERT INTO CareProducts 
         (name, brand, category, photo_url, capacity_value, capacity_unit, expiry_date, opened_date, pao_months, current_capacity, product_status, routine_slot, usage_time, key_ingredients, efficacy, risk_tags)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
         (product.name, product.brand, product.category, product.photo_url,
@@ -237,7 +237,7 @@ def create_product(product: SkincareProductCreate):
 @app.put("/api/products/{product_id}")
 def update_product(product_id: int, update: ProductUpdate):
     conn = get_db_connection()
-    cursor = conn.execute("SELECT * FROM SkincareProducts WHERE id = ?", (product_id,))
+    cursor = conn.execute("SELECT * FROM CareProducts WHERE id = ?", (product_id,))
     if not cursor.fetchone():
         conn.close()
         raise HTTPException(status_code=404, detail="Product not found")
@@ -259,7 +259,7 @@ def update_product(product_id: int, update: ProductUpdate):
     
     if update_fields:
         params.extend([date.today().isoformat(), product_id])
-        conn.execute(f"UPDATE SkincareProducts SET {', '.join(update_fields)}, updated_at = ? WHERE id = ?", params)
+        conn.execute(f"UPDATE CareProducts SET {', '.join(update_fields)}, updated_at = ? WHERE id = ?", params)
         conn.commit()
     conn.close()
     return {"message": "Updated"}
@@ -277,7 +277,7 @@ def import_markdown_products(payload: MarkdownImportRequest):
     inserted = 0
     for item in parsed:
         conn.execute(
-            '''INSERT INTO SkincareProducts
+            '''INSERT INTO CareProducts
             (name, brand, category, photo_url, capacity_value, capacity_unit, expiry_date, opened_date, pao_months, current_capacity, product_status, routine_slot, usage_time, key_ingredients, efficacy, risk_tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
             (
@@ -307,7 +307,7 @@ def import_markdown_products(payload: MarkdownImportRequest):
 @app.get("/api/routine-conflicts")
 def get_routine_conflicts():
     conn = get_db_connection()
-    cursor = conn.execute("SELECT * FROM SkincareProducts WHERE product_status NOT IN ('finished', 'discarded')")
+    cursor = conn.execute("SELECT * FROM CareProducts WHERE product_status NOT IN ('finished', 'discarded')")
     products = [calculate_product_status(dict(row)) for row in cursor.fetchall()]
     conn.close()
 
@@ -317,7 +317,7 @@ def get_routine_conflicts():
 @app.get("/api/stats")
 def get_stats():
     conn = get_db_connection()
-    cursor = conn.execute("SELECT * FROM SkincareProducts WHERE product_status NOT IN ('finished', 'discarded')")
+    cursor = conn.execute("SELECT * FROM CareProducts WHERE product_status NOT IN ('finished', 'discarded')")
     products = [calculate_product_status(dict(row)) for row in cursor.fetchall()]
     conn.close()
     
@@ -336,7 +336,7 @@ def get_stats():
 def get_smart_match(product_id: int):
     conn = get_db_connection()
     
-    cursor = conn.execute("SELECT * FROM SkincareProducts WHERE id = ?", (product_id,))
+    cursor = conn.execute("SELECT * FROM CareProducts WHERE id = ?", (product_id,))
     product = cursor.fetchone()
     if not product:
         conn.close()
@@ -365,7 +365,7 @@ def get_recommendations():
     profile = conn.execute("SELECT skin_concerns FROM UserProfile WHERE id = 1").fetchone()
     concerns = profile["skin_concerns"].split(",") if profile and profile["skin_concerns"] else []
     
-    cursor = conn.execute("SELECT * FROM SkincareProducts WHERE product_status NOT IN ('finished', 'discarded')")
+    cursor = conn.execute("SELECT * FROM CareProducts WHERE product_status NOT IN ('finished', 'discarded')")
     products = [dict(row) for row in cursor.fetchall()]
     conn.close()
     

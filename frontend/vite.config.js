@@ -16,8 +16,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["apple-touch-icon.png"],
       manifest: {
-        name: "SuppleMind",
-        short_name: "SuppleMind",
+        name: "SuppleMind Care",
+        short_name: "SuppleMind Care",
         description: "你的健康與保養品庫存管家",
         theme_color: "#3b82f6",
         background_color: "#f8fafc",

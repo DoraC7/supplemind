@@ -1,13 +1,13 @@
 import sqlite3
 
 def create_ingredient_knowledge_base():
-    with sqlite3.connect('supplemind.db') as conn:
+    with sqlite3.connect('supplemind_care.db') as conn:
         c = conn.cursor()
         
         c.execute('DROP TABLE IF EXISTS Ingredient_Efficacy_Map')
         c.execute('DROP TABLE IF EXISTS Efficacies')
         c.execute('DROP TABLE IF EXISTS Ingredients')
-        c.execute('DROP TABLE IF EXISTS SkincareProducts')
+        c.execute('DROP TABLE IF EXISTS CareProducts')
         
         c.execute('''CREATE TABLE Ingredients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +28,7 @@ def create_ingredient_knowledge_base():
             FOREIGN KEY (efficacy_id) REFERENCES Efficacies(id)
         )''')
         
-        c.execute('''CREATE TABLE SkincareProducts (
+        c.execute('''CREATE TABLE CareProducts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             brand TEXT,

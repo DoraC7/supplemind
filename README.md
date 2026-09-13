@@ -1,4 +1,4 @@
-# SuppleMind 💧✨
+# SuppleMind Care 💧✨
 
 一款個人保養品管理與智慧保養流程助手，幫你追蹤保養品庫存、有效期限，並提供成分洞察與智慧推薦，讓晨間 / 夜間保養流程更安心、更有效率。
 
@@ -20,7 +20,7 @@
 ## 專案結構
 
 ```
-supplemind/
+supplemind-care/
 ├── app.py                  # 應用程式進入點
 ├── backend/
 │   ├── main.py              # FastAPI 主程式與 API 路由

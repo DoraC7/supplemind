@@ -6,13 +6,13 @@ from datetime import datetime, date, timedelta
 # ==========================================
 # 1. 資料庫初始化與工具函式
 # ==========================================
-DB_FILE = 'supplemind.db'
+DB_FILE = 'supplemind_care.db'
 
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
         c.execute('''
-            CREATE TABLE IF NOT EXISTS Supplements (
+            CREATE TABLE IF NOT EXISTS CareSupplements (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 category TEXT,
@@ -39,11 +39,11 @@ def execute_update(query, params=()):
 # 2. 視角組件：首頁儀表板 (Home)
 # ==========================================
 def view_home():
-    st.title("🏠 SuppleMind 儀表板")
+    st.title("🏠 SuppleMind Care 儀表板")
     st.markdown("追蹤你的健康日常，保持最佳狀態。")
     st.divider()
 
-    df = run_query("SELECT * FROM Supplements")
+    df = run_query("SELECT * FROM CareSupplements")
     
     if df.empty:
         st.info("目前沒有任何保健品紀錄，請前往「新增」建立你的第一筆資料！")
@@ -76,7 +76,7 @@ def view_list():
     # 簡單的搜尋與篩選
     search_term = st.text_input("🔍 搜尋品名...")
     
-    query = "SELECT * FROM Supplements WHERE name LIKE ?"
+    query = "SELECT * FROM CareSupplements WHERE name LIKE ?"
     df = run_query(query, (f"%{search_term}%",))
 
     if df.empty:
@@ -102,7 +102,7 @@ def view_list():
                 if current > 0:
                     if st.button(f"服用 1 {row['unit']}", key=f"btn_{row['id']}", use_container_width=True):
                         execute_update(
-                            "UPDATE Supplements SET current_stock = current_stock - 1 WHERE id = ?", 
+                            "UPDATE CareSupplements SET current_stock = current_stock - 1 WHERE id = ?", 
                             (row['id'],)
                         )
                         st.success(f"已記錄！")
@@ -140,7 +140,7 @@ def view_add():
                     st.error("請輸入保健品名稱！")
                 else:
                     execute_update('''
-                        INSERT INTO Supplements 
+                        INSERT INTO CareSupplements 
                         (name, category, expiry_date, total_capacity, current_stock, unit, warning_level)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
                     ''', (name, category, expiry_date, total_capacity, current_stock, unit, warning_level))
@@ -158,11 +158,11 @@ def view_add():
 # ==========================================
 def main():
     # 頁面設定
-    st.set_page_config(page_title="SuppleMind", page_icon="💊", layout="centered")
+    st.set_page_config(page_title="SuppleMind Care", page_icon="💊", layout="centered")
     init_db()
 
     # 側邊欄導覽
-    st.sidebar.title("💊 SuppleMind")
+    st.sidebar.title("💊 SuppleMind Care")
     st.sidebar.markdown("你的健康庫存管家")
     page = st.sidebar.radio("前往", ["🏠 儀表板 (Home)", "📋 我的清單 (List)", "➕ 新增 (Add)"])
 

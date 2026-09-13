@@ -2,10 +2,10 @@ import sqlite3
 import json
 
 def seed_products():
-    with sqlite3.connect('supplemind.db') as conn:
+    with sqlite3.connect('supplemind_care.db') as conn:
         c = conn.cursor()
         c.execute('''
-            CREATE TABLE IF NOT EXISTS SkincareProducts (
+            CREATE TABLE IF NOT EXISTS CareProducts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 brand TEXT,
@@ -21,7 +21,7 @@ def seed_products():
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-        print("✅ SkincareProducts 資料表準備完成 (尚無初始資料)")
+        print("✅ CareProducts 資料表準備完成 (尚無初始資料)")
 
 if __name__ == "__main__":
     seed_products()
